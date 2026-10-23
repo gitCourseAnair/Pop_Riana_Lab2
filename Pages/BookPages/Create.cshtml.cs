@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Pop_Riana_Lab2.Models;
 
+
 namespace Pop_Riana_Lab2.Pages.BookPages;
 
-public class CreateModel : PageModel
+public class CreateModel : BookCategoriesPageModel
 {
     private readonly Pop_Riana_Lab2Context _context;
 
@@ -20,17 +21,41 @@ public class CreateModel : PageModel
     public IActionResult OnGet()
     {
         LoadDropdowns();
+
+       
+        var book = new Book();
+        book.BookCategories = new List<BookCategory>();
+        PopulateAssignedCategoryData(_context, book);
+
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(string[] selectedCategories)
     {
+        // construim lista de categorii alese
+        var newBook = new Book();
+        newBook.BookCategories = new List<BookCategory>();
+
+        if (selectedCategories != null)
+        {
+            foreach (var cat in selectedCategories)
+            {
+                newBook.BookCategories.Add(new BookCategory
+                {
+                    CategoryID = int.Parse(cat)
+                });
+            }
+        }
+
         if (!ModelState.IsValid)
         {
-            LoadDropdowns();  
+            LoadDropdowns();
+          
+            PopulateAssignedCategoryData(_context, newBook);
             return Page();
         }
 
+        Book.BookCategories = newBook.BookCategories;
         _context.Book.Add(Book);
         await _context.SaveChangesAsync();
 
@@ -43,4 +68,3 @@ public class CreateModel : PageModel
         ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID", "FullName");
     }
 }
-

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pop_Riana_Lab2.Models;
 
+
 namespace Pop_Riana_Lab2.Pages.BookPages;
 
 public class IndexModel : PageModel
@@ -16,19 +17,29 @@ public class IndexModel : PageModel
     }
 
     public IList<Book> Book { get; set; } = default!;
+    public BookData BookD { get; set; } = default!;
+    public int BookID { get; set; }
+    public int CategoryID { get; set; }
 
     public SelectList? Authors { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public int? AuthorID { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(int? id, int? categoryID)
     {
+        BookD = new BookData();
+
+        
         var books = _context.Book
             .Include(b => b.Publisher)
             .Include(b => b.Author)
+            .Include(b => b.BookCategories)
+                .ThenInclude(b => b.Category)
+            .AsNoTracking()
             .AsQueryable();
 
+        
         if (AuthorID.HasValue)
         {
             books = books.Where(b => b.AuthorID == AuthorID);
@@ -39,6 +50,21 @@ public class IndexModel : PageModel
             .ToListAsync();
         Authors = new SelectList(authorList, "ID", "FullName");
 
-        Book = await books.ToListAsync();
+        BookD.Books = await books
+            .OrderBy(b => b.Title)
+            .ToListAsync();
+
+        
+        Book = BookD.Books.ToList();
+
+        if (id != null)
+        {
+            BookID = id.Value;
+            Book? selected = BookD.Books.FirstOrDefault(i => i.ID == id.Value);
+            if (selected != null)
+            {
+                BookD.Categories = selected.BookCategories.Select(s => s.Category);
+            }
+        }
     }
 }
