@@ -12,4 +12,8 @@ public class Pop_Riana_Lab2Context(DbContextOptions<Pop_Riana_Lab2Context> optio
     public DbSet<Pop_Riana_Lab2.Models.Category> Category { get; set; } = default!;
 
 
+    public DbSet<Pop_Riana_Lab2.Models.Member> Member { get; set; } = default!;
+
+    public DbSet<Pop_Riana_Lab2.Models.Borrowing> Borrowing { get; set; } = default!;
+
 }

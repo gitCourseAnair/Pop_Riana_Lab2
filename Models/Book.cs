@@ -22,6 +22,9 @@ namespace Pop_Riana_Lab2.Models
         public int? AuthorID { get; set; }
         public Author? Author { get; set; }
 
+
+        public ICollection<Borrowing>? Borrowings { get; set; }
+
         public ICollection<BookCategory>? BookCategories { get; set; }
 
     }
